@@ -41,3 +41,5 @@ jobs:
           echo "::error file=app.js,line=1::Missing semicolon"
           echo "## TITLE YAY 
           information about the title." >> $GITHUB_STEP_SUMMARY
+          exit 1
+
