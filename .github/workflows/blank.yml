@@ -39,5 +39,5 @@ jobs:
       - name: Group github tools. 
         run: |
           echo "::error file=app.js,line=1::Missing semicolon"
-          echo "{## TITLE YAY 
-          information about the title.}" >> $GITHUB_STEP_SUMMARY
+          echo "## TITLE YAY 
+          information about the title." >> $GITHUB_STEP_SUMMARY
