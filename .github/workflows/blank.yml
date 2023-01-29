@@ -34,3 +34,7 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+        
+      # Create a group of stuff. 
+      - name: Group github tools. 
+        run:  echo "::error file=app.js,line=1::Missing semicolon"
