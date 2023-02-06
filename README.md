@@ -8,7 +8,7 @@ The spread of infection is modelled by directly simulating contact between infec
 $$C_m \sim \text{NB}\left(r\delta t, \frac{\Lambda_{n,m}}{r + \Lambda_{n,m}}\right),$$
 where $C_m$ (contacts/timestep) is the number of contacts made this timestep by the individual in age bracket $m$, $r$ (contacts/day) is the overdispersion parameter, $\delta t$ (day) is the size of the current time step and $\Lambda_{n,m}$ (contacts/day) is the mean number of daily contacts between age bracket $n$ and $m$[^1].
 
-[^1]:Note that we have used the definition of the negative binomial distribution where $\text{NB}(r,p)$ corresponds to probability density function $f(k)={k + r -1 \choose r} p^k (1-p)^r$.
+[^1]: Note that we have used the definition of the negative binomial distribution where $\text{NB}(r,p)$ corresponds to probability density function $$f(k)={k + r -1 \choose r} p^k (1-p)^r$$.
 
 We then sample $C_m$ contacts uniformly from individuals within the $m$th age bracket. If contact $j$ is susceptible we determine if infection occurred using,
 $$I \sim \text{Bernoulli}(\tau_i\xi_j),$$
