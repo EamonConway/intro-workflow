@@ -1,4 +1,3 @@
-# intro-workflow
 
 ##Transmission model
 
