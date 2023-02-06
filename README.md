@@ -210,19 +210,19 @@ compute an adjusted probability.
 
 If individual $i$ is hospitalised, the probabilities governing which
 hospital pathway is chosen are altered such that, and, where
-$p^0_{\ICU | E}$ is the baseline probability of requiring the ICU given
-infection, $p_{H_D|E}^0$ is the probability of death on ward (without
-visiting ICU) given infection and $\rho_\text{D}(a_i)$ is the protection
-against death given infection.
+$p^0_{\text{ICU}| E}$ is the baseline probability of requiring the ICU
+given infection, $p_{H_D|E}^0$ is the probability of death on ward
+(without visiting ICU) given infection and $\rho_\text{D}(a_i)$ is the
+protection against death given infection.
 
 If individual $i$ is in the ICU, then their probabilities of death in
-the ICU, $p_{\ICU_D|\ICU}^i$, and death on the ward given they left ICU
-without dying, $p_{W_D|\ICU_D^c}^i$, are altered such that, and, where
-$p^0_{\ICU_D|E}$ is the baseline probability of dying in the ICU and
-$p_{W_D|E}^0$ is the baseline probability of dying in the ward after
-returning from the ICU. Note that we assume no difference between the
-protection from hospitalisation given infection and the protection from
-ICU given infection here.
+the ICU, $p_{\text{ICU}_D|\text{ICU}}^i$, and death on the ward given
+they left ICU without dying, $p_{W_D|\text{ICU}_D^c}^i$, are altered
+such that, and, where $p^0_{\text{ICU}_D|E}$ is the baseline probability
+of dying in the ICU and $p_{W_D|E}^0$ is the baseline probability of
+dying in the ward after returning from the ICU. Note that we assume no
+difference between the protection from hospitalisation given infection
+and the protection from ICU given infection here.
 
 %
 To determine all parameters in and , we use a re-implementation of and
@@ -298,30 +298,31 @@ There are three initial pathways for hospitalised individual $i$.
 Individual $i$ will either recover and be discharged from a ward bed,
 die in a ward bed, or move to an ICU bed; as the three pathways have
 different length of stay distributions they modelled as three separate
-compartments $H_R$, $H_D$ and $\ICU_{pre}$. To determine which pathway
-individual $i$ will follow, we sample from, where $X_h$ is the sampled
-hospital pathway, is a vector containing the probability of
-transitioning into $\ICU_{pre}$, $H_D$, or $H_R$ respectively,
-$p_{\ICU|H}^i$ is the probability that individual $i$ is admitted to ICU
-given they are hospitalised and $p_{H_D|\ICU^c}^i$ is the probability
-that individual $i$ dies on ward given that they are in hospitalised and
-are not going to ICU. If individual $i$ requires the ICU, they follow a
-further ICU pathway to determine their final outcome.
+compartments $H_R$, $H_D$ and $\text{ICU}_{pre}$. To determine which
+pathway individual $i$ will follow, we sample from, where $X_h$ is the
+sampled hospital pathway, is a vector containing the probability of
+transitioning into $\text{ICU}_{pre}$, $H_D$, or $H_R$ respectively,
+$p_{\text{ICU}|H}^i$ is the probability that individual $i$ is admitted
+to ICU given they are hospitalised and $p_{H_D|\text{ICU}^c}^i$ is the
+probability that individual $i$ dies on ward given that they are in
+hospitalised and are not going to ICU. If individual $i$ requires the
+ICU, they follow a further ICU pathway to determine their final outcome.
 
 The pathway through the ICU also consists of three different components.
 Within the ICU pathway an individual will either die in the ICU
-($\ICU_D$), die in a ward bed after leaving the ICU ($\ICU_{WD}$), or
-recover and be discharged from a ward bed after leaving the ICU
-($\ICU_{WR}$). We sample which pathway is taken within the ICU from,
-where $X_\ICU$ is the sampled ICU pathway, is a vector containing the
-probability of transitioning into the $\ICU_D$, $\ICU_{WD}$ or
-$\ICU_{WR}$ compartment respectively, $p_{\ICU_D|\ICU}^i$ is the
-probability that individual $i$ dies in the ICU given they were admitted
-to ICU and $p_{W_D|\ICU_D^c}^i$ is the probability that individual $i$
-of dies in a ward bed after leaving ICU without dying. For an individual
-that transitions into $\ICU_{WR}$ or $\ICU_{WD}$, they will move into a
-further ward compartment, $W_R$ or $W_D$, where they will either recover
-or die respectively.
+($\text{ICU}_D$), die in a ward bed after leaving the ICU
+($\text{ICU}_{WD}$), or recover and be discharged from a ward bed after
+leaving the ICU ($\text{ICU}_{WR}$). We sample which pathway is taken
+within the ICU from, where $X_\text{ICU}$ is the sampled ICU pathway, is
+a vector containing the probability of transitioning into the
+$\text{ICU}_D$, $\text{ICU}_{WD}$ or $\text{ICU}_{WR}$ compartment
+respectively, $p_{\text{ICU}_D|\text{ICU}}^i$ is the probability that
+individual $i$ dies in the ICU given they were admitted to ICU and
+$p_{W_D|\text{ICU}_D^c}^i$ is the probability that individual $i$ of
+dies in a ward bed after leaving ICU without dying. For an individual
+that transitions into $\text{ICU}_{WR}$ or $\text{ICU}_{WD}$, they will
+move into a further ward compartment, $W_R$ or $W_D$, where they will
+either recover or die respectively.
 
 Finally, the length of stay for individual $i$ in each compartment is
 sampled such that, where $\tau_c$ is the time spent in compartment $c$,
