@@ -76,7 +76,7 @@ trace, isolate, quarantine (TTIQ) . We include a factor to account for a
 
 When the infectious individual recovers, we store the individual’s age,
 time of symptom onset, neutralising antibody titre at exposure, symptom
-indicator ($Q$), the number of individuals they infected, their vaccine
+indicator ( $Q$ ), the number of individuals they infected, their vaccine
 status (what was the latest vaccine they received) at exposure, the time
 they were isolated from the community and the number of times that they
 have been infected. This generates a line list of infections that is
