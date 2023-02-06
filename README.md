@@ -18,10 +18,10 @@ Each individual within the simulation is constructed using a known age,
 their corresponding age bracket within the contact matrix, a list of
 their vaccination history and the decay rate of their neutralising
 antibodies. Note that each individual’s entire vaccination history must
-be known {} and is an input into the transmission model. This is in
-contrast to other IBMs that simulate the time of vaccination, however,
-this is a conscious design choice. By not directly simulating the
-vaccination roll-out within the transmission model, we have the
+be known *a priori* and is an input into the transmission model. This is
+in contrast to other IBMs that simulate the time of vaccination,
+however, this is a conscious design choice. By not directly simulating
+the vaccination roll-out within the transmission model, we have the
 increased benefit of being able to directly incorporate known
 vaccination information and can quickly and efficiently switch out
 different vaccination scenarios. This is an important feature of the IBM
@@ -76,19 +76,20 @@ trace, isolate, quarantine (TTIQ) . We include a factor to account for a
 
 When the infectious individual recovers, we store the individual’s age,
 time of symptom onset, neutralising antibody titre at exposure, symptom
-indicator ( $Q$ ), the number of individuals they infected, their vaccine
-status (what was the latest vaccine they received) at exposure, the time
-they were isolated from the community and the number of times that they
-have been infected. This generates a line list of infections that is
-used to model clinical outcomes ().
+indicator ( $Q$ ), the number of individuals they infected, their
+vaccine status (what was the latest vaccine they received) at exposure,
+the time they were isolated from the community and the number of times
+that they have been infected. This generates a line list of infections
+that is used to model clinical outcomes
+([Section 2](#sec-ClinicalOutcomes)).
 
 ## Immunological model
 
 Within both the transmission model ([Section 1](#sec-TransmissionModel))
-and the clinical outcomes model (**?@sec-ClinicalOutcomes**) we include
-an immunological response to COVID-19. This immunological response is
-handled by directly modelling each individual’s neutralising antibody
-titre. By using the model of and we can relate an individual’s
+and the clinical outcomes model ([Section 2](#sec-ClinicalOutcomes)) we
+include an immunological response to COVID-19. This immunological
+response is handled by directly modelling each individual’s neutralising
+antibody titre. By using the model of and we can relate an individual’s
 neutralising antibody titre to their protection against all outcomes of
 interest: infection, symptomatic disease, onward transmission given
 breakthrough infection, hospitalisation and death. The fact that each
@@ -178,9 +179,6 @@ of the individual and the expected transmission potential of the
 population (transmission potential does not vary in time for our
 scenarios). For a full derivation of and , see .
 
-% \begin{itemize} %
-% \end{itemize}
-
 To reduce the computational cost of updating the immunological component
 of the transmission model for each individual at every timestep, we only
 solve the immunological component of the IBM when we require the
@@ -209,22 +207,28 @@ function that uses odds ratio $r$ and baseline probability $p$ to
 compute an adjusted probability.
 
 If individual $i$ is hospitalised, the probabilities governing which
-hospital pathway is chosen are altered such that, and, where
-$p^0_{\text{ICU}| E}$ is the baseline probability of requiring the ICU
-given infection, $p_{H_D|E}^0$ is the probability of death on ward
+hospital pathway is chosen are altered such that,
+$$p_{\text{ICU}| H}^i = \frac{OR\left(p^0_{\text{ICU}| E} ,\rho_h(a_i)\right)}{p_{H| I }^iq_i},$$
+and,
+$$p_{H_D|ICU^c}^i = \frac{OR\left(p^0_{H_D|E},\rho_\text{D}(a_i)\right)}{(1-p_{\text{ICU}| H}^i)p_{H | I}^iq_i},$$
+where $p^0_{\text{ICU}| E}$ is the baseline probability of requiring the
+ICU given infection, $p_{H_D|E}^0$ is the probability of death on ward
 (without visiting ICU) given infection and $\rho_\text{D}(a_i)$ is the
 protection against death given infection.
 
 If individual $i$ is in the ICU, then their probabilities of death in
 the ICU, $p_{\text{ICU}_D|\text{ICU}}^i$, and death on the ward given
 they left ICU without dying, $p_{W_D|\text{ICU}_D^c}^i$, are altered
-such that, and, where $p^0_{\text{ICU}_D|E}$ is the baseline probability
-of dying in the ICU and $p_{W_D|E}^0$ is the baseline probability of
-dying in the ward after returning from the ICU. Note that we assume no
-difference between the protection from hospitalisation given infection
-and the protection from ICU given infection here.
+such that,
+$$p_{\text{ICU}_D|\text{ICU}}^i = \frac{OR\left(p^0_{\text{ICU}_D|E},\rho_\text{D}(a_i)\right)}{p_{\text{ICU}| H}^ip_{H| I }^iq_i},$$
+and,
+$$p_{W_D|\text{ICU}_D^c}^i = \frac{OR\left(p_{W_D|E}^0,\rho_D(a_i)\right)}{(1-p_{\text{ICU}_D|\text{ICU}}^i)p_{\text{ICU}| H}^ip_{H | I }^iq_i},$$
+where $p^0_{\text{ICU}_D|E}$ is the baseline probability of dying in the
+ICU and $p_{W_D|E}^0$ is the baseline probability of dying in the ward
+after returning from the ICU. Note that we assume no difference between
+the protection from hospitalisation given infection and the protection
+from ICU given infection here.
 
-%
 To determine all parameters in and , we use a re-implementation of and
 in a Bayesian framework. This allows us to calibrate the level of
 protection, which is analogous to vaccine efficacy for individuals with
@@ -242,9 +246,6 @@ vaccine escape. This was then combined with the information fit on the
 Delta variant to model waning over time for both the Delta and Omicron
 variants.
 
-% \begin{itemize} %
-% \end{itemize}
-
 Presented in and are the median levels of protection against all
 outcomes of interest for both the Delta and Omicron strain. The
 parameters used to generate these results are listed in . Here we can
@@ -256,7 +257,7 @@ the vaccination program, meaning that their immunity has likely waned
 significantly compared to the younger individuals who received their
 dose in late 2021.
 
-{#sec-ClinicalOutcomes}
+# Clinical Outcomes Model
 
 The clinical outcomes model is based on the clinical model from and is
 an extension of the work done in . This model extends on previous work
@@ -276,16 +277,18 @@ severity in an unvaccinated individuals are given in .
 
 For symptomatic individual $i$ in the line-list outputted from the
 transmission model, we determine if they are hospitalised by sampling,
-where $H$ is an indicator variable for hospitalisation and $p_{H| I}^i$
-is the probability that individual $i$ is hospitalised given symptomatic
-infection. If individual $i$ requires hospitalisation they will present
-to the ED, where they may not be seen due to capacity limitations. ED
-consult capacity is modelled by admitting only the first $C_{ED}$
-presentations to ED each day. If individual $i$ is not seen, they will
-present again to the ED with probability $1 - p_{\text{L}|\text{ED}}$
-after $\tau_{\text{L}|\text{ED}}$ days sampled from, where
-$p_{\text{L}|\text{ED}}$ is the probability that an individual does not
-present again to the ED and $\kappa_{\text{L}|\text{ED}}$ and
+$$H \sim \text{Bernoulli}(p_{H| I}^i)$$ where $H$ is an indicator
+variable for hospitalisation and $p_{H| I}^i$ is the probability that
+individual $i$ is hospitalised given symptomatic infection. If
+individual $i$ requires hospitalisation they will present to the ED,
+where they may not be seen due to capacity limitations. ED consult
+capacity is modelled by admitting only the first $C_{ED}$ presentations
+to ED each day. If individual $i$ is not seen, they will present again
+to the ED with probability $1 - p_{\text{L}|\text{ED}}$ after
+$\tau_{\text{L}|\text{ED}}$ days sampled from,
+$$\tau_{\text{L}|\text{ED}} \sim \text{Gamma}(\kappa_{\text{L}|\text{ED}}, \theta_{\text{L}|\text{ED}}),$$
+where $p_{\text{L}|\text{ED}}$ is the probability that an individual
+does not present again to the ED and $\kappa_{\text{L}|\text{ED}}$ and
 $\theta_{\text{L}|\text{ED}}$ are the shape and rate parameters of the
 gamma distribution respectively. For individuals that do not return to
 ED and are therefore not admitted to hospital, their age, neutralisation
@@ -299,22 +302,28 @@ Individual $i$ will either recover and be discharged from a ward bed,
 die in a ward bed, or move to an ICU bed; as the three pathways have
 different length of stay distributions they modelled as three separate
 compartments $H_R$, $H_D$ and $\text{ICU}_{pre}$. To determine which
-pathway individual $i$ will follow, we sample from, where $X_h$ is the
-sampled hospital pathway, is a vector containing the probability of
-transitioning into $\text{ICU}_{pre}$, $H_D$, or $H_R$ respectively,
-$p_{\text{ICU}|H}^i$ is the probability that individual $i$ is admitted
-to ICU given they are hospitalised and $p_{H_D|\text{ICU}^c}^i$ is the
-probability that individual $i$ dies on ward given that they are in
-hospitalised and are not going to ICU. If individual $i$ requires the
-ICU, they follow a further ICU pathway to determine their final outcome.
+pathway individual $i$ will follow, we sample from,
+$$X_h \sim \text{Categorical}({\bf p}_{1}^i)$$ where $X_h$ is the
+sampled hospital pathway,
+$${\bf p}_{1}^i= \left[p_{\text{ICU}| H}^i, (1 - p_{\text{ICU}|H}^i)p_{H_D|\text{ICU}^c}^i, (1 - p_{\text{ICU}}^i)(1 - p_{H_D|\text{ICU}^c}^i)\right]$$
+is a vector containing the probability of transitioning into
+$\text{ICU}_{pre}$, $H_D$, or $H_R$ respectively, $p_{\text{ICU}|H}^i$
+is the probability that individual $i$ is admitted to ICU given they are
+hospitalised and $p_{H_D|\text{ICU}^c}^i$ is the probability that
+individual $i$ dies on ward given that they are in hospitalised and are
+not going to ICU. If individual $i$ requires the ICU, they follow a
+further ICU pathway to determine their final outcome.
 
 The pathway through the ICU also consists of three different components.
 Within the ICU pathway an individual will either die in the ICU
 ($\text{ICU}_D$), die in a ward bed after leaving the ICU
 ($\text{ICU}_{WD}$), or recover and be discharged from a ward bed after
 leaving the ICU ($\text{ICU}_{WR}$). We sample which pathway is taken
-within the ICU from, where $X_\text{ICU}$ is the sampled ICU pathway, is
-a vector containing the probability of transitioning into the
+within the ICU from,
+$$X_\text{ICU}\sim \text{Categorical}({\bf p}_{2}^i)$$ where
+$X_\text{ICU}$ is the sampled ICU pathway,
+$${\bf p}_{2}^i = \left[p_{\text{ICU}_D|\text{ICU}}^i, (1 - p_{\text{ICU}_D|\text{ICU}}^i)p_{W_D|\text{ICU}_D^c}^i, (1 - p_{\text{ICU}_D|\text{ICU}}^i)(1 - p_{W_D|\text{ICU}_D^c}^i)\right]$$
+is a vector containing the probability of transitioning into the
 $\text{ICU}_D$, $\text{ICU}_{WD}$ or $\text{ICU}_{WR}$ compartment
 respectively, $p_{\text{ICU}_D|\text{ICU}}^i$ is the probability that
 individual $i$ dies in the ICU given they were admitted to ICU and
@@ -325,12 +334,12 @@ move into a further ward compartment, $W_R$ or $W_D$, where they will
 either recover or die respectively.
 
 Finally, the length of stay for individual $i$ in each compartment is
-sampled such that, where $\tau_c$ is the time spent in compartment $c$,
-and $\kappa_c$ and $\theta_c$ are the shape and rate parameter for
-compartment $c$ respectively. Uncertainty is incorporated by sampling
-rate and shape parameters from the posterior estimated for the
-Australian Delta wave . The mean lengths of stay in each compartment by
-age are given in Table .
+sampled such that, $$\tau_c \sim \text{Gamma}(\kappa_c, \theta_c)$$
+where $\tau_c$ is the time spent in compartment $c$, and $\kappa_c$ and
+$\theta_c$ are the shape and rate parameter for compartment $c$
+respectively. Uncertainty is incorporated by sampling rate and shape
+parameters from the posterior estimated for the Australian Delta wave .
+The mean lengths of stay in each compartment by age are given in Table .
 
 By generating a clinical timeline for every symptomatic individual, we
 can calculate hospital admissions, ICU occupancy, ward occupancy and
