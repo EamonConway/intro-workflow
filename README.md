@@ -1,5 +1,4 @@
-
-##Transmission model
+#Transmission model
 
 To model the transmission of COVID-19 throughout the population of interest we have extended a previous individual-based model \cite{Sheareretal} to account for loss of protection over time since vaccination. Waning of immunity is accounted for by explicitly modelling the boosting and decay of each individual's neutralising antibody titre. This approach overcomes limitations of the typical SIRS model, where waning is modelled as an exponential distribution (or more generally as a phase type distribution), and enables us to investigate the possible impacts of variants of concern using the expected fold change in neutralising antibody titre.  
 
